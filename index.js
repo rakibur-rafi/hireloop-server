@@ -21,10 +21,25 @@ export async function connectToMongoDB() {
   }
 }
 
-connectToMongoDB();
+const connection = await connectToMongoDB();
+const db = connection.db("hireloopdb");
+const users = db.collection("user");
+const jobs = db.collection("jobs");
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
+});
+
+app.get("/users", async (req, res) => {
+    const cursor = await users.find({})
+    const result = await cursor.toArray();
+    res.send(result);
+});
+
+app.post("/jobs", async (req, res) => {
+    const job = req.body;
+    const result = await jobs.insertOne(job);
+    res.send(result);
 });
 
 app.listen(PORT, () => {
