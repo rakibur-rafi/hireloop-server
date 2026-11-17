@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import 'dotenv/config';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 
 const app = express();
@@ -41,6 +41,34 @@ app.post("/jobs", async (req, res) => {
     const result = await jobs.insertOne(job);
     res.send(result);
 });
+
+app.get("/jobs", async (req, res) => {
+    const cursor = await jobs.find({})
+    const result = await cursor.toArray();
+    res.send(result);
+})
+
+app.get("/jobs/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id)};
+    const result = await jobs.findOne(query);
+    res.send(result);
+})
+
+app.patch("/jobs/:id", async (req, res) => {
+    const id= req.params.id
+    const data= req.body
+    const result= await jobs.updateOne({_id: new ObjectId(id)}, {$set: data})
+    res.send(result)
+})
+
+app.delete("/jobs/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id)};
+    const result = await jobs.deleteOne(query);
+    res.send(result);
+})
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
